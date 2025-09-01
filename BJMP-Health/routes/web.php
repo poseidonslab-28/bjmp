@@ -576,5 +576,11 @@ Route::post('/employee-account/{id}/toggle-active', [EmployeeProfileController::
 Route::get('/personal-information/{empId}', [EmployeeProfileController::class, 'show'])
     ->name('employee.personal-information');
 
+
+use App\Http\Controllers\AboutUsController;
+
+Route::get('/about-us', [AboutUsController::class, 'index'])->name('about.index');
+Route::post('/about-us/insert', [AboutUsController::class, 'store']);
+
 require __DIR__.'/settings.php';
 // require __DIR__.'/auth.php'; // Commented out - using custom employee authentication instead
