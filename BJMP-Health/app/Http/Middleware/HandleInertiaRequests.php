@@ -41,7 +41,7 @@ class HandleInertiaRequests extends Middleware
 
         $employee = $request->user('employee');
         $userData = null;
-        
+
         if ($employee) {
             $userData = [
                 'id' => $employee->Emp_ID,
@@ -68,11 +68,17 @@ class HandleInertiaRequests extends Middleware
                 'user' => $userData,
             ],
             'csrf_token' => $request->session()->token(),
-            'ziggy' => fn (): array => [
+            'ziggy' => fn(): array => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'flash' => [
+                'success' => fn() => $request->session()->get('success'),
+                'error' => fn() => $request->session()->get('error'),
+            ],
         ];
+
+
     }
 }

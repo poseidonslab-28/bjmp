@@ -7,6 +7,8 @@ use App\Models\Employee;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
+use Inertia\Inertia;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -26,5 +28,14 @@ class AppServiceProvider extends ServiceProvider
         Auth::provider('employee_plain', function ($app, array $config) {
             return new EmployeeUserProvider($app['hash'], $config['model']);
         });
+
+        Inertia::share([
+            'flash' => function () {
+                return [
+                    'success' => session('success'),
+                    'error' => session('error'),
+                ];
+            },
+        ]);
     }
 }

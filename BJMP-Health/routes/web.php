@@ -566,6 +566,7 @@ Route::middleware(['auth:employee'])->group(function () {
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\MedicalEmployeeController;
 
+Route::post('/employees/store', [EmployeeProfileController::class, 'store'])->name('employee.store')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 Route::get('/dashboard', action: [EmployeeProfileController::class, 'dashboard'])->name('employee.dashboard');
 Route::get('/employee-account', action: [EmployeeProfileController::class, 'index'])->name('employee.index');
 Route::get('/medical-personnel', action: [MedicalEmployeeController::class, 'index'])->name('employee.index');
