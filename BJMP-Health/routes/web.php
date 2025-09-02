@@ -594,6 +594,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/activity-log', [ActivityLogController::class, 'show']);
 });
 
+use App\Http\Controllers\HelpController;
+
+Route::get('/help', [HelpController::class, 'index'])->name('help.index');
+Route::post('/help/upload', [App\Http\Controllers\HelpController::class, 'upload'])->name('help.upload');
 
 require __DIR__ . '/settings.php';
 // require __DIR__.'/auth.php'; // Commented out - using custom employee authentication instead
