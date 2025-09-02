@@ -588,7 +588,11 @@ Route::post('/security/update-email', [EmployeeProfileController::class, 'update
 Route::post('/security/update-mobile', [EmployeeProfileController::class, 'updateMobile'])->name('security.updateMobile');
 Route::post('/security/update-password', [EmployeeProfileController::class, 'updatePassword'])->name('security.updatePassword');
 
+use App\Http\Controllers\ActivityLogController;
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/activity-log', [ActivityLogController::class, 'show']);
+});
 
 
 require __DIR__ . '/settings.php';
