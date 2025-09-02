@@ -86,7 +86,7 @@ Route::middleware(['auth:employee'])->group(function () {
     Route::get('security', fn() => Inertia::render('security'))->name('security');
     Route::get('activity-log', fn() => Inertia::render('activity-log'))->name('activity-log');
 
-    
+
     // Medical Personnel specific routes (role-protected)
     Route::middleware(['auth:employee', 'role:medical'])->group(function () {
         Route::get('/medical/dashboard', function () {
@@ -97,7 +97,7 @@ Route::middleware(['auth:employee'])->group(function () {
         Route::get('/medical/about-us', function () {
             return Inertia::render('medical-personnel/about-us');
         });
-        
+
         // Medical History routes
         Route::get('/medical/employee-account/medical-history', [MedicalHistoryController::class, 'index'])
             ->name('medical.employee.medical-history');
@@ -107,11 +107,11 @@ Route::middleware(['auth:employee'])->group(function () {
             ->name('medical.employee.medical-history.show');
 
         Route::get('/medical-personnel/about-us', function () {
-        return Inertia::render('medical-personnel/about-us', [
-            'user' => auth('medical')->user(),
-            'aboutUsData' => \App\Models\AboutUs::all()
-        ]);
-    });
+            return Inertia::render('medical-personnel/about-us', [
+                'user' => auth('medical')->user(),
+                'aboutUsData' => \App\Models\AboutUs::all()
+            ]);
+        });
 
         Route::get('/medical/personal-information', function () {
             $employee = auth('employee')->user();
@@ -119,10 +119,10 @@ Route::middleware(['auth:employee'])->group(function () {
                 'employee' => $employee
             ]);
         });
-        
+
         Route::put('/medical/personal-information', function (Request $request) {
             $employee = auth('employee')->user();
-            
+
             $validatedData = $request->validate([
                 'First_Name' => 'required|string|max:255',
                 'Middle_Name' => 'nullable|string|max:255',
@@ -137,7 +137,7 @@ Route::middleware(['auth:employee'])->group(function () {
                 'Email' => 'nullable|email|max:255',
                 'House_No' => 'nullable|string|max:50',
                 'Street_Address' => 'nullable|string|max:255',
-                'Baranggay' => 'nullable|string|max:255', 
+                'Baranggay' => 'nullable|string|max:255',
                 'City' => 'nullable|string|max:255',
                 'Province' => 'nullable|string|max:255',
                 'Zip_Code' => 'nullable|string|max:10',
@@ -154,15 +154,15 @@ Route::middleware(['auth:employee'])->group(function () {
                 'C_P_Address' => 'nullable|string|max:500',
                 'C_P_Contact' => 'nullable|string|max:20',
             ]);
-            
+
             $employeeModel = \App\Models\Employee::where('Emp_ID', $employee->Emp_ID)->first();
-            
+
             if (!$employeeModel) {
                 return redirect()->back()->with('error', 'Employee record not found.');
             }
-            
+
             $employeeModel->update($validatedData);
-            
+
             return redirect()->back()->with('success', 'Personal information updated successfully.');
         });
         Route::get('/medical/employee-account', function () {
@@ -171,7 +171,7 @@ Route::middleware(['auth:employee'])->group(function () {
                 ->orderBy('Last_Name')
                 ->orderBy('First_Name')
                 ->get();
-                
+
             return Inertia::render('medical-personnel/med-employee-account', [
                 'employees' => $employees
             ]);
@@ -190,9 +190,9 @@ Route::middleware(['auth:employee'])->group(function () {
             if (!$employee) {
                 abort(404, 'Employee not found');
             }
-            
+
             $medicalHistory = \App\Models\MedHistory::where('Patient_ID', $emp_id)->first();
-            
+
             return Inertia::render('medical-personnel/employee-account/medical-history', [
                 'employee' => $employee,
                 'medicalHistory' => $medicalHistory
@@ -203,13 +203,13 @@ Route::middleware(['auth:employee'])->group(function () {
             if (!$employee) {
                 abort(404, 'Employee not found');
             }
-            
+
             // Get laboratory records where Lab_Taker_ID matches the employee ID
             $laboratories = \App\Models\Laboratory::where('Lab_Taker_ID', $emp_id)
                 ->where('archived', false)
                 ->orderBy('Lab_Date', 'desc')
                 ->get();
-            
+
             return Inertia::render('medical-personnel/employee-account/laboratory', [
                 'employee' => $employee,
                 'laboratories' => $laboratories
@@ -218,16 +218,16 @@ Route::middleware(['auth:employee'])->group(function () {
         Route::get('/medical/employee-account/laboratory/{emp_id}/details/{lab_id}', function ($emp_id, $lab_id) {
             $employee = \App\Models\Employee::where('Emp_ID', $emp_id)->first();
             $laboratory = \App\Models\Laboratory::where('ID', $lab_id)->first();
-            
+
             if (!$employee || !$laboratory) {
                 abort(404, 'Employee or Laboratory record not found');
             }
-            
+
             // Get related lab results
             $labBloodCount = \App\Models\LabBloodCount::where('Lab_ID', $lab_id)->first();
             $labBloodChem = \App\Models\LabBloodChem::where('LAB_ID', $lab_id)->first();
             $labClinicMic = \App\Models\LabClinicMic::where('LAB_ID', $lab_id)->first();
-            
+
             return Inertia::render('medical-personnel/employee-account/laboratory-details', [
                 'employee' => $employee,
                 'laboratory' => $laboratory,
@@ -241,13 +241,13 @@ Route::middleware(['auth:employee'])->group(function () {
             if (!$employee) {
                 abort(404, 'Employee not found');
             }
-            
+
             // Get imaging records for the employee
             $imagingRecords = \App\Models\Imaging::where('Emp_ID', $emp_id)
                 ->where('archived', false)
                 ->orderBy('Date', 'desc')
                 ->get();
-            
+
             return Inertia::render('medical-personnel/employee-account/imaging', [
                 'employee' => $employee,
                 'imagingRecords' => $imagingRecords
@@ -258,13 +258,13 @@ Route::middleware(['auth:employee'])->group(function () {
             if (!$employee) {
                 abort(404, 'Employee not found');
             }
-            
+
             // Get vaccination records for the employee (using Patient_ID which is the employee's ID)
             $vaccinations = \App\Models\Vaccination::where('Patient_ID', $emp_id)
                 ->where('archived', false)
                 ->orderBy('Date', 'desc')
                 ->get();
-            
+
             return Inertia::render('medical-personnel/employee-account/vaccination', [
                 'employee' => $employee,
                 'vaccinations' => $vaccinations
@@ -275,7 +275,7 @@ Route::middleware(['auth:employee'])->group(function () {
             if (!$employee) {
                 abort(404, 'Employee not found');
             }
-            
+
             return Inertia::render('medical-personnel/employee-account/dental-record', [
                 'employee' => $employee
             ]);
@@ -285,7 +285,7 @@ Route::middleware(['auth:employee'])->group(function () {
             if (!$employee) {
                 abort(404, 'Employee not found');
             }
-            
+
             return Inertia::render('medical-personnel/employee-account/doctors-note', [
                 'employee' => $employee
             ]);
@@ -352,14 +352,14 @@ Route::middleware(['auth:employee'])->group(function () {
     })->name('employee.dashboard');
     Route::get('/employee/dental-record', function () {
         $user = auth('employee')->user();
-        
+
         // If no user is logged in, use a sample user for testing
         if (!$user) {
             $user = \App\Models\Employee::where('Emp_ID', 'P212101')->first();
         }
-        
+
         $dentalRecord = \App\Models\DentalRecord::where('Patient_ID', $user->Emp_ID)->first();
-        
+
         return Inertia::render('employee/dental-record', [
             'user' => $user,
             'dentalRecord' => $dentalRecord
@@ -377,13 +377,13 @@ Route::middleware(['auth:employee'])->group(function () {
     });
     Route::get('/employee/laboratory', function () {
         $user = auth('employee')->user();
-        
+
         // Get laboratory records for the user (using Lab_Taker_ID since that's the employee's ID)
         $laboratories = \App\Models\Laboratory::where('Lab_Taker_ID', $user->Emp_ID)
             ->where('archived', false)
             ->orderBy('Lab_Date', 'desc')
             ->get();
-        
+
         return Inertia::render('employee/laboratory', [
             'user' => $user,
             'laboratories' => $laboratories
@@ -391,17 +391,17 @@ Route::middleware(['auth:employee'])->group(function () {
     });
     Route::get('/employee/laboratory-details/{id}', function ($id) {
         $user = auth('employee')->user();
-        
+
         // Get laboratory record with relationships (using Lab_Taker_ID to verify ownership)
         $laboratory = \App\Models\Laboratory::with(['bloodChem', 'bloodCount', 'clinicMic'])
             ->where('ID', $id)
             ->where('Lab_Taker_ID', $user->Emp_ID)  // Changed from Emp_ID to Lab_Taker_ID
             ->first();
-            
+
         if (!$laboratory) {
             return redirect('/employee/laboratory')->with('error', 'Laboratory record not found.');
         }
-        
+
         return Inertia::render('employee/laboratory-details', [
             'user' => $user,
             'laboratory' => $laboratory,
@@ -413,11 +413,11 @@ Route::middleware(['auth:employee'])->group(function () {
     Route::get('/employee/medical-history', function () {
         $user = auth('employee')->user();
         $medHistory = null;
-        
+
         if ($user) {
             $medHistory = \App\Models\MedHistory::where('Patient_ID', $user->Emp_ID)->first();
         }
-        
+
         return Inertia::render('employee/medical-history', [
             'user' => $user,
             'medHistory' => $medHistory
@@ -425,11 +425,11 @@ Route::middleware(['auth:employee'])->group(function () {
     });
     Route::post('/employee/medical-history/save', function () {
         $user = auth('employee')->user();
-        
+
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        
+
         $validated = request()->validate([
             'Present_HC' => 'nullable|string|max:500',
             'Past_HC' => 'nullable|string|max:500',
@@ -453,17 +453,17 @@ Route::middleware(['auth:employee'])->group(function () {
             'blood' => 'nullable|string|max:255',
             'physical' => 'nullable|string|max:255',
         ]);
-        
+
         // Convert empty strings to null for database fields that don't allow empty strings
         $dataToSave = [];
         foreach ($validated as $key => $value) {
             $dataToSave[$key] = ($value === null) ? '' : $value;
         }
-        
+
         try {
             // Check if medical history record exists
             $medHistory = \App\Models\MedHistory::where('Patient_ID', $user->Emp_ID)->first();
-            
+
             if ($medHistory) {
                 // Update existing record
                 $medHistory->update($dataToSave);
@@ -473,7 +473,7 @@ Route::middleware(['auth:employee'])->group(function () {
                 $dataToSave['Record_ID'] = 'MH' . $user->Emp_ID . date('YmdHis'); // Generate a unique Record_ID
                 $medHistory = \App\Models\MedHistory::create($dataToSave);
             }
-            
+
             // Redirect back to the medical history page to refresh the data
             return redirect('/employee/medical-history')->with('success', 'Medical history saved successfully');
         } catch (\Exception $e) {
@@ -487,11 +487,11 @@ Route::middleware(['auth:employee'])->group(function () {
     });
     Route::put('/employee/personal-information', function () {
         $employee = auth('employee')->user();
-        
+
         if (!$employee) {
             return redirect()->route('login')->with('error', 'Please log in to continue.');
         }
-        
+
         $validated = request()->validate([
             'First_Name' => 'required|string|max:255',
             'Last_Name' => 'required|string|max:255',
@@ -527,11 +527,11 @@ Route::middleware(['auth:employee'])->group(function () {
 
         // Get the Employee model instance properly
         $employeeModel = \App\Models\Employee::where('Emp_ID', $employee->Emp_ID)->first();
-        
+
         if (!$employeeModel) {
             return redirect()->back()->with('error', 'Employee record not found.');
         }
-        
+
         $employeeModel->update($validated);
 
         return redirect()->back()->with('success', 'Personal information updated successfully');
@@ -553,7 +553,7 @@ Route::middleware(['auth:employee'])->group(function () {
             'helpData' => \App\Models\Help::all()
         ]);
     });
-    
+
     // Debug route to test CSRF
     Route::post('/test-csrf', function () {
         return response()->json([
@@ -583,5 +583,13 @@ use App\Http\Controllers\AboutUsController;
 Route::get('/about-us', [AboutUsController::class, 'index'])->name('about.index');
 Route::post('/about-us/insert', [AboutUsController::class, 'store']);
 
-require __DIR__.'/settings.php';
+Route::get('/security', [EmployeeProfileController::class, 'security'])->name('security');
+Route::post('/security/update-email', [EmployeeProfileController::class, 'updateEmail'])->name('security.updateEmail');
+Route::post('/security/update-mobile', [EmployeeProfileController::class, 'updateMobile'])->name('security.updateMobile');
+Route::post('/security/update-password', [EmployeeProfileController::class, 'updatePassword'])->name('security.updatePassword');
+
+
+
+
+require __DIR__ . '/settings.php';
 // require __DIR__.'/auth.php'; // Commented out - using custom employee authentication instead

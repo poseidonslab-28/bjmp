@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class EmployeeProfileController extends Controller
 {
@@ -204,6 +205,68 @@ class EmployeeProfileController extends Controller
     }
 
 
+    public function security()
+    {
+        // Assuming you have authentication set up and the user has an Emp_ID
+        $empId = auth()->user()->Emp_ID ?? null;
+
+        if (!$empId) {
+            abort(404, 'Employee not found.');
+        }
+
+        $employee = Employee::where('Emp_ID', $empId)->firstOrFail();
+
+        return Inertia::render('security', [
+            'employee' => $employee
+        ]);
+    }
+
+    public function updateEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|unique:tbl_employee,email,' . auth()->user()->Emp_ID . ',Emp_ID'
+        ]);
+
+        $employee = Employee::where('Emp_ID', auth()->user()->Emp_ID)->first();
+        $employee->email = $request->email;
+        $employee->save();
+
+        return redirect()->back()->with('success', 'Email updated successfully');
+    }
+
+    public function updateMobile(Request $request)
+    {
+        $request->validate([
+            'mobile_number' => 'required|string|max:20'
+        ]);
+
+        $employee = Employee::where('Emp_ID', auth()->user()->Emp_ID)->first();
+        $employee->contact_no = $request->mobile_number;
+        $employee->save();
+
+        return redirect()->back()->with('success', 'Mobile number updated successfully');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:8|confirmed', // expects new_password_confirmation
+        ]);
+
+        $user = auth()->user();
+
+        // Compare plain string
+        if ($request->current_password !== $user->Emp_Pass) {
+            return redirect()->back()->with('error', 'Current password is incorrect');
+        }
+
+        // Save new password as plain string
+        $user->Emp_Pass = $request->new_password;
+        $user->save();
+
+        return redirect()->back()->with('success', 'Password updated successfully');
+    }
 
 
 }
